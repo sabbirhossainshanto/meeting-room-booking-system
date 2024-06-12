@@ -16,13 +16,10 @@ const signupUserValidationSchema = z.object({
       required_error: 'Password should be in string!',
       message: 'Password is required!',
     }),
-    phone: z
-      .number({
-        required_error: 'Password should be in number!',
-        message: 'Number is required!',
-      })
-      .max(11, { message: 'Number cant be greater that eleven character' })
-      .min(11, { message: 'Number cant be less that eleven character' }),
+    phone: z.number({
+      required_error: 'Password should be in number!',
+      message: 'Number is required!',
+    }),
     address: z.string({
       required_error: 'Address should be in string!',
       message: 'Address is required!',
@@ -31,6 +28,22 @@ const signupUserValidationSchema = z.object({
   }),
 });
 
+const loginUserValidationSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email should be in string!',
+        message: 'Email is required!',
+      })
+      .email(),
+    password: z.string({
+      required_error: 'Password should be in string!',
+      message: 'Password is required!',
+    }),
+  }),
+});
+
 export const userValidation = {
   signupUserValidationSchema,
+  loginUserValidationSchema
 };
