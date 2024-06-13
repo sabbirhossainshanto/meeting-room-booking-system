@@ -24,8 +24,8 @@ router.delete(
   roomController.deleteSingleRoom,
 );
 
-router.get('/', auth('admin', 'user'), roomController.getAllRoom);
+router.get('/', roomController.getAllRoom);
 
-router.get('/:id', auth('admin', 'user'), roomController.getSingleRoom);
+router.get('/:id', roomController.getSingleRoom);
 
 export const roomRoutes = router;

@@ -13,6 +13,19 @@ router.post(
   bookingController.createBooking,
 );
 router.get('/', auth('admin'), bookingController.getAllBookings);
-router.get('/my-bookings/:id', auth('admin'), bookingController.getAllBookings);
+
+router.get('/my-bookings/:id', auth('user'), bookingController.getAllBookings);
+
+router.put(
+  '/:id',
+  auth('admin'),
+  validateRequest(bookingValidation.updateBookingValidationSchema),
+  bookingController.updateBooking,
+);
+router.delete(
+  '/:id',
+  auth('admin'),
+  bookingController.deleteBooking,
+);
 
 export const bookingRoutes = router;

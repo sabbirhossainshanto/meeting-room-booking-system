@@ -31,6 +31,12 @@ const userSchema = new Schema<TUser>({
     enum: ['user', 'admin'],
   },
 });
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  },
+});
 
 userSchema.pre('save', async function (next) {
   const user = this;
@@ -40,10 +46,13 @@ userSchema.pre('save', async function (next) {
   );
   next();
 });
+
+
 userSchema.post('save', function (doc, next) {
   doc.password = '';
   next();
 });
+
 
 userSchema.statics.isUserExist = async function (email: string) {
   const isUserExist = await User.findOne({ email }).select('+password');

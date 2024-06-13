@@ -3,26 +3,26 @@ import { z } from 'zod';
 const signupUserValidationSchema = z.object({
   body: z.object({
     name: z.string({
-      required_error: 'Name should be in string!',
-      message: 'Name is required!',
+      required_error: 'Name is required!',
+      message: 'Name should be in string!',
     }),
     email: z
       .string({
-        required_error: 'Email should be in string!',
-        message: 'Email is required!',
+        required_error: 'Email is required!',
+        message: 'Email should be in string!',
       })
       .email(),
     password: z.string({
-      required_error: 'Password should be in string!',
-      message: 'Password is required!',
+      required_error: 'Password is required!',
+      message: 'Password should be in string!',
     }),
     phone: z.number({
-      required_error: 'Password should be in number!',
-      message: 'Number is required!',
+      required_error: 'phone number is required!',
+      message: 'phone number should be in number!',
     }),
     address: z.string({
-      required_error: 'Address should be in string!',
-      message: 'Address is required!',
+      required_error: 'Address is required!',
+      message: 'Address should be in string!',
     }),
     role: z.enum(['admin', 'user']),
   }),
@@ -45,5 +45,5 @@ const loginUserValidationSchema = z.object({
 
 export const userValidation = {
   signupUserValidationSchema,
-  loginUserValidationSchema
+  loginUserValidationSchema,
 };

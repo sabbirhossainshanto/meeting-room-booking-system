@@ -29,15 +29,9 @@ const loginUser = async (payload: TLoginUser) => {
     config.JWT_ACCESS_SECRET as string,
     config.JWT_ACCESS_EXPIRES_IN as string,
   );
-  const refreshToken = createToken(
-    userData,
-    config.JWT_REFRESH_SECRET as string,
-    config.JWT_REFRESH_EXPIRES_IN as string,
-  );
 
   return {
     accessToken,
-    refreshToken,
     user,
   };
 };
