@@ -34,7 +34,11 @@ const getAvailableSlotsFromDB = async (query: Record<string, unknown>) => {
   }
 
   const result = await Slot.find({ ...queryObj, isBooked: false });
-  return result;
+  if (result?.length > 0) {
+    return result;
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
+  }
 };
 
 export const slotService = {

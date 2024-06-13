@@ -10,8 +10,14 @@ const createRoomIntoDB = async (payload: TRoom) => {
 
 const getAllRoomsFromDB = async () => {
   const result = await Room.find({ isDeleted: false });
-  return result;
+  if (result?.length > 0) {
+    return result;
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
+  }
 };
+
+
 const getSingleRoomsFromDB = async (id: string) => {
   const isRoomExist = await Room.findById(id);
   if (!isRoomExist) {

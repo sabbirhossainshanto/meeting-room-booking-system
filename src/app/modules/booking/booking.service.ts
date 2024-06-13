@@ -42,7 +42,11 @@ const getAllBookingsFromDB = async () => {
     .populate('user')
     .populate('slots')
     .populate('room');
-  return result;
+  if (result?.length > 0) {
+    return result;
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
+  }
 };
 
 const getMyBookingsFromDB = async (id: string) => {
@@ -54,7 +58,11 @@ const getMyBookingsFromDB = async (id: string) => {
     .populate('user')
     .populate('slots')
     .populate('room');
-  return result;
+  if (result?.length > 0) {
+    return result;
+  } else {
+    throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
+  }
 };
 
 const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
