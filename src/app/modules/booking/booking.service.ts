@@ -68,6 +68,12 @@ const getMyBookingsFromDB = async (email: string) => {
 };
 
 const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
+  const isBookingExist = await Booking.findById(id)
+  if(!isBookingExist){
+    throw new AppError(httpStatus.NOT_FOUND, 'Booking is not found');
+  }
+
+
   if (payload.user) {
     const isUserExist = await User.findById(payload.user);
     if (!isUserExist) {
