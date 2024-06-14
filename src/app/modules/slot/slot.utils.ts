@@ -1,4 +1,7 @@
+import httpStatus from 'http-status';
+import AppError from '../../errors/AppError';
 import { TSlot } from './slot.interface';
+import { Slot } from './slot.model';
 
 const convertToMinutes = (timeStr: string) => {
   const [hours, minutes] = timeStr.split(':').map(Number);
@@ -11,10 +14,10 @@ const convertToTimeStr = (minutes: number) => {
   return `${hours}:${mins}`;
 };
 
-export const generateTimeSlots = (
+export const generateTimeSlots = async (
   payload: TSlot,
   slotDuration: number,
-): TSlot[] => {
+) => {
   const startMinutes = convertToMinutes(payload.startTime);
   const endMinutes = convertToMinutes(payload.endTime);
   const totalDuration = endMinutes - startMinutes;
@@ -33,6 +36,22 @@ export const generateTimeSlots = (
       endTime: convertToTimeStr(currentEnd),
     });
     currentStart = currentEnd;
+  }
+
+  const isSlotAlreadyExist = await Slot.find({
+    $or: slots.map((slot) => ({
+      room: slot.room,
+      date: slot.date,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+    })),
+  });
+
+  if (isSlotAlreadyExist?.length > 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'You cant create slot, Already slot is available in this room',
+    );
   }
 
   return slots;

@@ -6,6 +6,7 @@ import { Room } from '../room/room.model';
 import { Slot } from '../slot/slot.model';
 import { Booking } from './booking.model';
 
+
 const createBookingIntoDB = async (payload: TBooking) => {
   const isUserExist = await User.findById(payload.user);
   if (!isUserExist) {
@@ -49,12 +50,13 @@ const getAllBookingsFromDB = async () => {
   }
 };
 
-const getMyBookingsFromDB = async (id: string) => {
-  const isUserExist = await User.findById(id);
+const getMyBookingsFromDB = async (email: string) => {
+  const isUserExist = await User.findOne({email})
   if (!isUserExist) {
-    throw new AppError(httpStatus.NOT_FOUND, 'User is bot found');
+    throw new AppError(httpStatus.NOT_FOUND, 'User is not found');
   }
-  const result = await Booking.find({ user: id })
+  const user = isUserExist?._id
+  const result = await Booking.find({ user })
     .populate('user')
     .populate('slots')
     .populate('room');

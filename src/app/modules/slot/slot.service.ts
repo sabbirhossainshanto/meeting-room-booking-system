@@ -16,7 +16,7 @@ const createSlotIntoDB = async (payload: TSlot) => {
       'You can create slot, Because this room is already deleted. !',
     );
   }
-  const generateSlots = generateTimeSlots(payload, 60);
+  const generateSlots = await generateTimeSlots(payload, 60);
   const result = await Slot.insertMany(generateSlots);
   return result;
 };
@@ -33,7 +33,7 @@ const getAvailableSlotsFromDB = async (query: Record<string, unknown>) => {
     queryObj.room = roomId;
   }
 
-  const result = await Slot.find({ ...queryObj, isBooked: false });
+  const result = await Slot.find({ ...queryObj, isBooked: false }).populate('room');
   if (result?.length > 0) {
     return result;
   } else {

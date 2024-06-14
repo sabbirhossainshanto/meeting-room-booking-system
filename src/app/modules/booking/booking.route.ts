@@ -14,7 +14,7 @@ router.post(
 );
 router.get('/', auth('admin'), bookingController.getAllBookings);
 
-router.get('/my-bookings/:id', auth('user'), bookingController.getAllBookings);
+router.get('/my-bookings', auth('user'), bookingController.getMyBookings);
 
 router.put(
   '/:id',
