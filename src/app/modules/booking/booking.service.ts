@@ -5,7 +5,7 @@ import { TBooking } from './booking.interface';
 import { Room } from '../room/room.model';
 import { Slot } from '../slot/slot.model';
 import { Booking } from './booking.model';
-
+import mongoose from 'mongoose';
 
 const createBookingIntoDB = async (payload: TBooking) => {
   const isUserExist = await User.findById(payload.user);
@@ -22,20 +22,41 @@ const createBookingIntoDB = async (payload: TBooking) => {
   const isAllSlotsAvailable = await Slot.find({
     _id: { $in: payload.slots },
     date: payload.date,
+    isBooked:false
   });
 
   if (isAllSlotsAvailable?.length !== payload.slots?.length) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'Some slots are not exist,Check the slots and date property',
+      'Some slots are not exist or already booked ! Check the slots and date property',
     );
   }
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    await Slot.updateMany(
+      {
+        _id: { $in: payload.slots },
+        date: payload.date,
+      },
+      { $set: { isBooked: true } },
+      { session },
+    );
 
-  const pricePerSlot = isRoomExist.pricePerSlot * isAllSlotsAvailable.length;
-  payload.totalAmount = pricePerSlot;
+    const pricePerSlot = isRoomExist.pricePerSlot * isAllSlotsAvailable.length;
+    payload.totalAmount = pricePerSlot;
 
-  const result = await Booking.create(payload);
-  return result;
+    const result = await Booking.create([payload], { session });
+    await session.commitTransaction();
+    await session.endSession();
+    return result;
+  } catch (error: unknown) {
+    await session.abortTransaction();
+    await session.endSession();
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+  }
 };
 
 const getAllBookingsFromDB = async () => {
@@ -51,11 +72,11 @@ const getAllBookingsFromDB = async () => {
 };
 
 const getMyBookingsFromDB = async (email: string) => {
-  const isUserExist = await User.findOne({email})
+  const isUserExist = await User.findOne({ email });
   if (!isUserExist) {
     throw new AppError(httpStatus.NOT_FOUND, 'User is not found');
   }
-  const user = isUserExist?._id
+  const user = isUserExist?._id;
   const result = await Booking.find({ user })
     .populate('user')
     .populate('slots')
@@ -68,11 +89,10 @@ const getMyBookingsFromDB = async (email: string) => {
 };
 
 const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
-  const isBookingExist = await Booking.findById(id)
-  if(!isBookingExist){
+  const isBookingExist = await Booking.findById(id);
+  if (!isBookingExist) {
     throw new AppError(httpStatus.NOT_FOUND, 'Booking is not found');
   }
-
 
   if (payload.user) {
     const isUserExist = await User.findById(payload.user);
