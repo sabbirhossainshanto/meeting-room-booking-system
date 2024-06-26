@@ -23,7 +23,7 @@ const userSchema = new Schema<TUser>({
     required: true,
   },
   phone: {
-    type: Number,
+    type: String,
     required: true,
   },
   role: {
