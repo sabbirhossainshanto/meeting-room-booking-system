@@ -52,7 +52,7 @@ const updateRoomValidationSchema = z.object({
           message: 'Amenities should be in string!',
         })
         .optional(),
-    ),
+    ).optional(),
     capacity: z
       .number({
         required_error: 'Capacity is required!',

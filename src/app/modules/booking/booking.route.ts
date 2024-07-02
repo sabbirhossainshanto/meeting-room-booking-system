@@ -14,18 +14,12 @@ router.post(
 );
 router.get('/', auth('admin'), bookingController.getAllBookings);
 
-router.get('/my-bookings', auth('user'), bookingController.getMyBookings);
-
 router.put(
   '/:id',
   auth('admin'),
   validateRequest(bookingValidation.updateBookingValidationSchema),
   bookingController.updateBooking,
 );
-router.delete(
-  '/:id',
-  auth('admin'),
-  bookingController.deleteBooking,
-);
+router.delete('/:id', auth('admin'), bookingController.deleteBooking);
 
 export const bookingRoutes = router;
