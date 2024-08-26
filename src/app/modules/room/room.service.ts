@@ -1,11 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { TRoom } from './room.interface';
 import { Room } from './room.model';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createRoomIntoDB = async (payload: TRoom) => {
+const createRoomIntoDB = async (files: any, payload: TRoom) => {
+  if (files) {
+    const uploadResults = await Promise.all(
+      files.map((file: any) => sendImageToCloudinary(file.filename, file.path)),
+    );
+    payload.images = uploadResults?.map((item) => item.secure_url);
+  }
+
   const result = await Room.create(payload);
   return result;
+  return null;
 };
 
 const getAllRoomsFromDB = async () => {
@@ -16,7 +26,6 @@ const getAllRoomsFromDB = async () => {
     throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
   }
 };
-
 
 const getSingleRoomsFromDB = async (id: string) => {
   const isRoomExist = await Room.findById(id);

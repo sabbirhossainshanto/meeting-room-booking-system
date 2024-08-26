@@ -16,6 +16,10 @@ const signupUserValidationSchema = z.object({
       required_error: 'Password is required!',
       message: 'Password should be in string!',
     }),
+    confirmPassword: z.string({
+      required_error: 'Confirm password is required!',
+      message: 'Confirm password should be in string!',
+    }),
     phone: z.string({
       required_error: 'phone number is required!',
       message: 'phone number should be in string!',

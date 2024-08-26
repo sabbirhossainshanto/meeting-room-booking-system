@@ -22,6 +22,10 @@ const userSchema = new Schema<TUser>({
     type: String,
     required: true,
   },
+  confirmPassword: {
+    type: String,
+    required: true,
+  },
   phone: {
     type: String,
     required: true,

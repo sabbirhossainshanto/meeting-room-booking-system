@@ -6,6 +6,9 @@ import config from '../../config';
 import { createToken } from './user.utils';
 
 const signupUser = async (payload: TUser) => {
+  if (payload.password !== payload.confirmPassword) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Password did not matched!');
+  }
   const result = await User.create(payload);
   return result;
 };
@@ -22,6 +25,8 @@ const loginUser = async (payload: TLoginUser) => {
   const userData = {
     email: user.email,
     role: user.role,
+    name:user.name,
+  
   };
 
   const accessToken = createToken(
