@@ -13,7 +13,7 @@ const createRoom = catchAsync(async (req, res) => {
   });
 });
 const getAllRoom = catchAsync(async (req, res) => {
-  const result = await roomService.getAllRoomsFromDB();
+  const result = await roomService.getAllRoomsFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

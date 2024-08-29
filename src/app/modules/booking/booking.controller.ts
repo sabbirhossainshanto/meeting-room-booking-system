@@ -52,6 +52,7 @@ const deleteBooking = catchAsync(async (req, res) => {
   });
 });
 
+
 export const bookingController = {
   createBooking,
   getAllBookings,

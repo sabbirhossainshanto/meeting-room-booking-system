@@ -27,6 +27,38 @@ const createSlotValidationSchema = z.object({
   }),
 });
 
+const updateSlotValidationSchema = z.object({
+  body: z.object({
+    room: z
+      .string({
+        message: 'Room should be in string!',
+      })
+      .optional(),
+    date: z
+      .string({
+        message: 'Date should be in string!',
+      })
+      .optional(),
+    isBooked: z
+      .boolean({
+        message: 'isBooked should be in boolean!',
+      })
+      .optional()
+      .default(false),
+    startTime: z
+      .string({
+        message: 'startTime should be in string!',
+      })
+      .optional(),
+    endTime: z
+      .string({
+        message: 'endTime should be in string!',
+      })
+      .optional(),
+  }),
+});
+
 export const slotValidation = {
   createSlotValidationSchema,
+  updateSlotValidationSchema
 };

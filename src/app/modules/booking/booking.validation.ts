@@ -28,6 +28,8 @@ const createBookingValidationSchema = z.object({
       })
       .default(false)
       .optional(),
+    isPaid: z.boolean().default(false).optional(),
+    transactionId: z.string().optional(),
   }),
 });
 

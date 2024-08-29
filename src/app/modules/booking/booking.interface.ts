@@ -8,4 +8,6 @@ export type TBooking = {
   totalAmount?: number;
   isConfirmed?: 'confirmed' | 'unconfirmed' | 'canceled';
   isDeleted?: boolean;
+  transactionId?: string;
+  isPaid: boolean;
 };

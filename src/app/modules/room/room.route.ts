@@ -9,7 +9,7 @@ const router = express.Router();
 router.post(
   '/',
   auth('admin'),
-  upload.array('files',10),
+  upload.array('files', 10),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
     next();

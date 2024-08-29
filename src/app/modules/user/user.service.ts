@@ -4,6 +4,7 @@ import { TLoginUser, TUser } from './user.interface';
 import { User } from './user.model';
 import config from '../../config';
 import { createToken } from './user.utils';
+import { JwtPayload } from 'jsonwebtoken';
 
 const signupUser = async (payload: TUser) => {
   if (payload.password !== payload.confirmPassword) {
@@ -25,8 +26,7 @@ const loginUser = async (payload: TLoginUser) => {
   const userData = {
     email: user.email,
     role: user.role,
-    name:user.name,
-  
+    name: user.name,
   };
 
   const accessToken = createToken(
@@ -41,7 +41,30 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+const getAllUser = async (user: JwtPayload) => {
+  const result = await User.find({ email: { $ne: user.email } });
+  return result;
+};
+
+const getMe = async (user: JwtPayload) => {
+  const result = await User.findOne({ email: user.email });
+  return result;
+};
+
+const deleteUser = async (id: string) => {
+  const result = await User.findByIdAndDelete(id);
+  return result;
+};
+const updateRole = async (id: string, payload: Partial<TUser>) => {
+  const result = await User.findByIdAndUpdate(id, payload, { new: true });
+  return result;
+};
+
 export const userService = {
   signupUser,
   loginUser,
+  getMe,
+  getAllUser,
+  deleteUser,
+  updateRole,
 };

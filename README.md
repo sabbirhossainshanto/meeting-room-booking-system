@@ -4,6 +4,7 @@
 
 
 ## How you can run the project locally
+## Please check the .env.example file
 
 ```tsx
  npm i                      //For install all the dependencies

@@ -22,7 +22,7 @@ const createSlotIntoDB = async (payload: TSlot) => {
 };
 
 const getAvailableSlotsFromDB = async (query: Record<string, unknown>) => {
-  const { date, roomId } = query;
+  const { date, roomId, startTime, endTime } = query;
   const queryObj: Record<string, unknown> = {};
 
   if (date) {
@@ -32,8 +32,16 @@ const getAvailableSlotsFromDB = async (query: Record<string, unknown>) => {
   if (roomId) {
     queryObj.room = roomId;
   }
+  if (startTime) {
+    queryObj.startTime = startTime;
+  }
+  if (endTime) {
+    queryObj.endTime = endTime;
+  }
 
-  const result = await Slot.find({ ...queryObj, isBooked: false }).populate('room');
+  const result = await Slot.find({ ...queryObj, isBooked: false }).populate(
+    'room',
+  );
   if (result?.length > 0) {
     return result;
   } else {
@@ -41,7 +49,67 @@ const getAvailableSlotsFromDB = async (query: Record<string, unknown>) => {
   }
 };
 
+const getSingleSlotFromDB = async (id: string) => {
+  const result = await Slot.findById(id).populate('room');
+  return result;
+};
+
+const updateSlotIntoDB = async (id: string, payload: Partial<TSlot>) => {
+  const isSlotExist = await Slot.findById(id);
+  if (!isSlotExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Slot is not exist!');
+  }
+
+  const isRoomExist = await Room.findById(isSlotExist.room);
+  if (!isRoomExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Room is not exist');
+  }
+
+  const isAlreadyPayloadSlotExist = await Slot.findOne({
+    $and: [
+      {
+        room: isSlotExist.room,
+        date: payload.date,
+        $or: [
+          {
+            startTime: payload?.startTime,
+          },
+          {
+            endTime: payload?.endTime,
+          },
+        ],
+      },
+    ],
+  });
+
+  if (isAlreadyPayloadSlotExist) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'This Slot is already exist, Please select another slot',
+    );
+  }
+
+  const result = await Slot.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+  return result;
+};
+
+const deleteSlotFromDB = async (id: string) => {
+  const isSlotExist = await Slot.findById(id);
+  if (!isSlotExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Slot is not exist!');
+  }
+
+  const result = await Slot.findByIdAndDelete(id);
+  return result;
+};
+
 export const slotService = {
   createSlotIntoDB,
   getAvailableSlotsFromDB,
+  deleteSlotFromDB,
+  updateSlotIntoDB,
+  getSingleSlotFromDB,
 };

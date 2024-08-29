@@ -4,6 +4,8 @@ import AppError from '../../errors/AppError';
 import { TRoom } from './room.interface';
 import { Room } from './room.model';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { Slot } from '../slot/slot.model';
 
 const createRoomIntoDB = async (files: any, payload: TRoom) => {
   if (files) {
@@ -15,28 +17,22 @@ const createRoomIntoDB = async (files: any, payload: TRoom) => {
 
   const result = await Room.create(payload);
   return result;
-  return null;
 };
 
-const getAllRoomsFromDB = async () => {
-  const result = await Room.find({ isDeleted: false });
-  if (result?.length > 0) {
-    return result;
-  } else {
-    throw new AppError(httpStatus.NOT_FOUND, 'No data found!');
-  }
+const getAllRoomsFromDB = async (query: Record<string, unknown>) => {
+  const productQuery = new QueryBuilder(Room.find({ isDeleted: false }), query)
+    .search(['name', 'amenities'])
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const result = await productQuery.modelQuery;
+  return result;
 };
 
 const getSingleRoomsFromDB = async (id: string) => {
-  const isRoomExist = await Room.findById(id);
-  if (!isRoomExist) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Room is not found!');
-  }
-  if (isRoomExist.isDeleted) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Room is deleted!');
-  }
-
-  return isRoomExist;
+  const result = await Room.findById(id);
+  return result;
 };
 
 const updateSingleRoomsFromDB = async (id: string, payload: Partial<TRoom>) => {
@@ -55,17 +51,15 @@ const deleteSingleRoomsFromDB = async (id: string) => {
   if (!isRoomExist) {
     throw new AppError(httpStatus.NOT_FOUND, 'Room is not found!');
   }
+
   if (isRoomExist.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, 'Room is already deleted!');
   }
-  const result = await Room.findByIdAndUpdate(
-    id,
-    { isDeleted: true },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  await Slot.deleteMany({ room: isRoomExist._id });
+  const result = await Room.findByIdAndDelete(id, {
+    new: true,
+    runValidators: true,
+  });
   return result;
 };
 

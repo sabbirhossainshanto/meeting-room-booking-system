@@ -6,6 +6,7 @@ import { Room } from '../room/room.model';
 import { Slot } from '../slot/slot.model';
 import { Booking } from './booking.model';
 import mongoose from 'mongoose';
+import { initiatePayment } from '../payment/payment.utils';
 
 const createBookingIntoDB = async (payload: TBooking) => {
   const isUserExist = await User.findById(payload.user);
@@ -22,7 +23,7 @@ const createBookingIntoDB = async (payload: TBooking) => {
   const isAllSlotsAvailable = await Slot.find({
     _id: { $in: payload.slots },
     date: payload.date,
-    isBooked:false
+    isBooked: false,
   });
 
   if (isAllSlotsAvailable?.length !== payload.slots?.length) {
@@ -31,6 +32,20 @@ const createBookingIntoDB = async (payload: TBooking) => {
       'Some slots are not exist or already booked ! Check the slots and date property',
     );
   }
+  const pricePerSlot = isRoomExist.pricePerSlot * isAllSlotsAvailable.length;
+
+  const transactionId = `TXN-${Date.now()}`;
+
+  const paymentData = {
+    transactionId,
+    amount: Number(pricePerSlot),
+    customerName: isUserExist.name,
+    customerAddress: isUserExist.address,
+    customerEmail: isUserExist.email,
+    customerPhone: isUserExist.phone,
+  };
+  payload.totalAmount = pricePerSlot;
+  payload.transactionId = transactionId;
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
@@ -43,13 +58,9 @@ const createBookingIntoDB = async (payload: TBooking) => {
       { session },
     );
 
-    const pricePerSlot = isRoomExist.pricePerSlot * isAllSlotsAvailable.length;
-    payload.totalAmount = pricePerSlot;
-
-    const result = await Booking.create([payload], { session });
+    await Booking.create([payload], { session });
     await session.commitTransaction();
     await session.endSession();
-    return result;
   } catch (error: unknown) {
     await session.abortTransaction();
     await session.endSession();
@@ -57,10 +68,12 @@ const createBookingIntoDB = async (payload: TBooking) => {
       throw new Error(error.message);
     }
   }
+  const paymentSession = await initiatePayment(paymentData);
+  return paymentSession;
 };
 
 const getAllBookingsFromDB = async () => {
-  const result = await Booking.find()
+  const result = await Booking.find({isPaid:true})
     .populate('user')
     .populate('slots')
     .populate('room');
@@ -133,16 +146,10 @@ const deleteBookingIntoDB = async (id: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Booking is already deleted');
   }
 
-  const result = await Booking.findByIdAndUpdate(
-    id,
-    { isDeleted: true },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await Booking.findByIdAndDelete(id);
   return result;
 };
+
 
 export const bookingService = {
   createBookingIntoDB,
