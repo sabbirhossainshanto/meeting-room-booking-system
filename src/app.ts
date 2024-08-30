@@ -3,11 +3,17 @@ import cors from 'cors';
 import notFound from './app/middlewares/notFound';
 import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import path from 'path';
 const app = express();
 
 /* parser */
 app.use(express.json());
-// app.use(express.static())
+app.use(
+  express.static(
+    path.join(__dirname, '/src/app/paymentConfirmation/index.html'),
+  ),
+);
+
 app.use(
   cors({
     credentials: true,
@@ -17,7 +23,6 @@ app.use(
       'http://localhost:5175',
       'https://meeting-room-booking-gules.vercel.app',
     ],
-   
   }),
 );
 
