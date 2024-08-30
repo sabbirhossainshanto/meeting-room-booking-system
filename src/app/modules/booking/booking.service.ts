@@ -73,7 +73,7 @@ const createBookingIntoDB = async (payload: TBooking) => {
 };
 
 const getAllBookingsFromDB = async () => {
-  const result = await Booking.find({isPaid:true})
+  const result = await Booking.find({ isPaid: true })
     .populate('user')
     .populate('slots')
     .populate('room');
@@ -90,7 +90,7 @@ const getMyBookingsFromDB = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, 'User is not found');
   }
   const user = isUserExist?._id;
-  const result = await Booking.find({ user })
+  const result = await Booking.find({ user, isPaid: true })
     .populate('user')
     .populate('slots')
     .populate('room');
@@ -149,7 +149,6 @@ const deleteBookingIntoDB = async (id: string) => {
   const result = await Booking.findByIdAndDelete(id);
   return result;
 };
-
 
 export const bookingService = {
   createBookingIntoDB,
