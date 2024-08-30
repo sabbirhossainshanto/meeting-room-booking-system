@@ -3,18 +3,10 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import { TRoom } from './room.interface';
 import { Room } from './room.model';
-import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Slot } from '../slot/slot.model';
 
-const createRoomIntoDB = async (files: any, payload: TRoom) => {
-  if (files) {
-    const uploadResults = await Promise.all(
-      files.map((file: any) => sendImageToCloudinary(file.filename, file.path)),
-    );
-    payload.images = uploadResults?.map((item) => item.secure_url);
-  }
-
+const createRoomIntoDB = async (payload: TRoom) => {
   const result = await Room.create(payload);
   return result;
 };

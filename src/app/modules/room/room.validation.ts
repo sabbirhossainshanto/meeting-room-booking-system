@@ -28,6 +28,12 @@ const createRoomValidationSchema = z.object({
       required_error: 'Room no is required!',
       message: 'Room no should be in number!',
     }),
+    images: z.array(
+      z.string({
+        required_error: 'Image is required!',
+        message: 'Image should be in string!',
+      }),
+    ),
     isDeleted: z
       .boolean({
         required_error: 'isDeleted no is required!',
@@ -45,14 +51,16 @@ const updateRoomValidationSchema = z.object({
         message: 'Name should be in string!',
       })
       .optional(),
-    amenities: z.array(
-      z
-        .string({
-          required_error: 'Amenities is required!',
-          message: 'Amenities should be in string!',
-        })
-        .optional(),
-    ).optional(),
+    amenities: z
+      .array(
+        z
+          .string({
+            required_error: 'Amenities is required!',
+            message: 'Amenities should be in string!',
+          })
+          .optional(),
+      )
+      .optional(),
     capacity: z
       .number({
         required_error: 'Capacity is required!',

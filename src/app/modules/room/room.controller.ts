@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { roomService } from './room.service';
 
 const createRoom = catchAsync(async (req, res) => {
-  const result = await roomService.createRoomIntoDB(req.files,req.body);
+  const result = await roomService.createRoomIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
